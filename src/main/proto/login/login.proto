@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package login;
+
+option java_package = "com.proto.login";
+option java_multiple_files = true;
+
+message UserDetails {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginRequest{
+  UserDetails userDetails = 1;
+}
+
+message LoginResponse {
+  string result = 1;
+}
+
+service LoginService {
+  // unary API
+  rpc Login(LoginRequest) returns (LoginResponse) {};
+}
+
