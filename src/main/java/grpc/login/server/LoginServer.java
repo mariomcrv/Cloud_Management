@@ -14,10 +14,9 @@ import java.util.Properties;
 public class LoginServer {
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        System.out.println("I am a gRPC server!\n" +
-                "I will be listening on port 50051");
+        System.out.println("I am a gRPC Login server!");
 
-        // create instance of the server class
+        // create instance of the server class to run the methods to obtain the properties and register the service
         LoginServer loginServer = new LoginServer();
 
         // jmdns method to get service properties
@@ -25,10 +24,11 @@ public class LoginServer {
 
         // jmdns method to register the service passing in the properties
         loginServer.registerService(prop);
-
+        // jmdns, we extract the port number from the properties
+        int port = Integer.parseInt(prop.getProperty("service_port"));
 
         //create the server
-        Server server = ServerBuilder.forPort(50051)
+        Server server = ServerBuilder.forPort(port) // port created above
                 .addService(new LoginServiceImp())
                 .build();
 
@@ -39,22 +39,20 @@ public class LoginServer {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Received Shutdown Request");
             server.shutdown();
-            System.out.println("Successfully  stopped  the server");
+            System.out.println("Successfully stopped the server");
         }));
 
         //if the do not do this, the service starts and the program will finish
         server.awaitTermination();
     }
 
-
-    // -- METHODS --
-
+    // --> METHODS FOR jmDNS <--
     // jmdns - generate properties
     private Properties getProperties() {
 
         Properties prop = null;
 
-        try (InputStream input = new FileInputStream("src/main/resources/math.properties")) {
+        try (InputStream input = new FileInputStream("src/main/resources/login.properties")) {
 
             prop = new Properties();
 
@@ -62,7 +60,7 @@ public class LoginServer {
             prop.load(input);
 
             // get the property value and print it out
-            System.out.println("Math Service properTies ...");
+            System.out.println("Service properties ...");
             System.out.println("\t service_type: " + prop.getProperty("service_type"));
             System.out.println("\t service_name: " + prop.getProperty("service_name"));
             System.out.println("\t service_description: " + prop.getProperty("service_description"));
@@ -76,19 +74,19 @@ public class LoginServer {
     }
 
     // jmdns register service
-    private  void registerService(Properties prop) {
+    private void registerService(Properties prop) {
 
         try {
             // Create a JmDNS instance
             JmDNS jmdns = JmDNS.create(InetAddress.getLocalHost());
 
-            String service_type = prop.getProperty("service_type") ;//"_http._tcp.local.";
-            String service_name = prop.getProperty("service_name")  ;// "example";
+            String service_type = prop.getProperty("service_type");//"_http._tcp.local.";
+            String service_name = prop.getProperty("service_name");// "example";
             // int service_port = 1234;
-            int service_port = Integer.valueOf( prop.getProperty("service_port") );// #.50051;
+            int service_port = Integer.parseInt(prop.getProperty("service_port"));// #.50051;
 
 
-            String service_description_properties = prop.getProperty("service_description")  ;//"path=index.html";
+            String service_description_properties = prop.getProperty("service_description");//"path=index.html";
 
             // Register a service
             ServiceInfo serviceInfo = ServiceInfo.create(service_type, service_name, service_port, service_description_properties);
