@@ -28,7 +28,7 @@ public class LoginClient {
 
     }
 
-    private void run() {
+    public void run() {
 
         // discover the service
         String login_service_type = "_login._tcp.local.";
@@ -56,7 +56,7 @@ public class LoginClient {
         // now create the message
         UserDetails userDetails = UserDetails.newBuilder()
                 .setUsername("Mario")
-                .setPassword("Luigi")
+                .setPassword("Yoshi")
                 .build();
 
         // put the message into the request message
@@ -67,8 +67,9 @@ public class LoginClient {
         // call the rpc response sending the request
         LoginResponse loginResponse = loginClient.login(loginRequest);
 
-        // print the result
-        System.out.println(loginResponse.getResult());
+        // do something with the response
+        System.out.println("Login service executed\n" +
+                "Result: " + loginResponse.getResult());
 
     }
 

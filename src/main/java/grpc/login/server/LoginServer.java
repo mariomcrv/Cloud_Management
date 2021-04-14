@@ -52,6 +52,7 @@ public class LoginServer {
 
         Properties prop = null;
 
+        // choose the properties file containing  the details of the service
         try (InputStream input = new FileInputStream("src/main/resources/login.properties")) {
 
             prop = new Properties();

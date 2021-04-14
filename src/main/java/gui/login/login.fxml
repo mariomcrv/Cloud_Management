@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="465.0" prefWidth="912.0" style="-fx-background-color: #272343;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.login.LoginController">
+    <children>
+        <ImageView fitHeight="585.0" fitWidth="472.0" layoutX="-2.0" layoutY="-3.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@../../../../../../../../../Downloads/SoftCloud%20Logo.png" />
+            </image>
+        </ImageView>
+        <TextField layoutX="596.0" layoutY="156.0" prefHeight="40.0" prefWidth="213.0" promptText="Username" style="-fx-text-inner-color: white; -fx-background-color: null; -fx-border-color: white; -fx-font: white;">
+            <font>
+                <Font size="17.0" />
+            </font>
+        </TextField>
+        <TextField layoutX="595.0" layoutY="208.0" prefHeight="40.0" prefWidth="214.0" promptText="Password" style="-fx-text-inner-color: white; -fx-background-color: null; -fx-border-color: white;">
+            <font>
+                <Font size="17.0" />
+            </font>
+        </TextField>
+        <Button layoutX="596.0" layoutY="259.0" mnemonicParsing="false" onAction="#handleAction" prefHeight="38.0" prefWidth="78.0" text="Login">
+            <font>
+                <Font size="16.0" />
+            </font>
+        </Button>
+        <Button layoutX="731.0" layoutY="259.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="78.0" text="Clear">
+            <font>
+                <Font size="16.0" />
+            </font>
+        </Button>
+    </children>
+</AnchorPane>
