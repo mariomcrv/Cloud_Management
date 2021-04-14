@@ -8,10 +8,10 @@ public class LoginServiceImp extends LoginServiceGrpc.LoginServiceImplBase {
     // this service implementation has only one rpc, which is unary to validate the user details
     // let's build the response
 
-    // unary api
+
     @Override
     public void login(LoginRequest request, StreamObserver<LoginResponse> responseObserver) {
-        // extract the necessary info from the request message
+
         UserDetails userDetails = request.getUserDetails();
         String username = userDetails.getUsername();
         String password = userDetails.getPassword();

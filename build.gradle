@@ -23,6 +23,10 @@ dependencies {
 
     //jmDNS
     implementation group: 'org.jmdns', name: 'jmdns', version: '3.5.1'
+
+    // logger SLF4J
+    implementation 'io.codearte.jfairy:jfairy:0.5.9'
+    implementation 'org.slf4j:slf4j-simple:1.7.30'
 }
 
 protobuf {
