@@ -7,13 +7,25 @@ import com.proto.login.UserDetails;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.stage.Stage;
 
+import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
+import javax.jmdns.ServiceListener;
 import javax.swing.*;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.ResourceBundle;
 
 // this class will run the client once it is executed by the corresponding button
-public class LoginController {
+public class LoginController implements Initializable {
+
+    // declare the gRPC stub
+    private static LoginServiceGrpc.LoginServiceBlockingStub loginClient;
 
     // jmdns - service info
     private ServiceInfo serviceInfo;
@@ -29,22 +41,12 @@ public class LoginController {
 
     @FXML
     private void handleLoginButtonAction() {
-        //new LoginClient().run();
 
         // get the input from the user and remove extra spaces at the start and end
         String user = username.getText().trim();
         String pass = password.getText().trim();
 
-        // gRPC: Create the channel
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("192.168.43.113", 50051)
-                .usePlaintext()
-                .build();
-
-        // gRCP: create the stub for the login service
-        System.out.println("Creating stub...");
-        LoginServiceGrpc.LoginServiceBlockingStub loginClient = LoginServiceGrpc.newBlockingStub(channel);
-
-        // gRPC: now create the message for the request
+        // gRPC: create the message for the request
         UserDetails userDetails = UserDetails.newBuilder()
                 .setUsername(user)
                 .setPassword(pass)
@@ -73,6 +75,8 @@ public class LoginController {
         }
 
     }
+
+    // this action clears both text fields
     @FXML
     private void handleClearButtonAction() {
         username.clear();
@@ -87,8 +91,81 @@ public class LoginController {
         stage.close();
     }
 
-    //////////////// CHECK THIS LATER
+    // here we will initialize the service discovery and the channel for the login service
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
 
+        // discover the service
+        String login_service_type = "_login._tcp.local.";
+        // call teh method to discover the service
+        discoverLoginService(login_service_type);
+
+        String host = serviceInfo.getHostAddresses()[0];
+        int port = serviceInfo.getPort();
+
+        // gRPC: Create the channel
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
+                .usePlaintext()
+                .build();
+
+        // the stub is declared from the beginning of the controller, we just pass the channel to enable the gRPC calls
+        // that is why we have access to it
+         loginClient = LoginServiceGrpc.newBlockingStub(channel);
+
+    }
+
+
+    // jmDNS discovery service (non-static method)
+    private void discoverLoginService(String service_type) {
+
+        try {
+            // Create a JmDNS instance
+            JmDNS jmdns = JmDNS.create(InetAddress.getLocalHost());
+
+
+            jmdns.addServiceListener(service_type, new ServiceListener() {
+
+                @Override
+                public void serviceResolved(ServiceEvent event) {
+                    System.out.println("Service resolved: " + event.getInfo());
+
+                    serviceInfo = event.getInfo();
+
+                    int port = serviceInfo.getPort();
+
+                    System.out.println("resolving " + service_type + " with properties ...");
+                    System.out.println("\t port: " + port);
+                    System.out.println("\t type:" + event.getType());
+                    System.out.println("\t name: " + event.getName());
+                    System.out.println("\t description/properties: " + serviceInfo.getNiceTextString());
+                    System.out.println("\t host: " + serviceInfo.getHostAddresses()[0]);
+                }
+
+                @Override
+                public void serviceRemoved(ServiceEvent event) {
+                    System.out.println("Service removed: " + event.getInfo());
+                }
+
+                @Override
+                public void serviceAdded(ServiceEvent event) {
+                    System.out.println("Service added: " + event.getInfo());
+                }
+            });
+
+            // Wait a bit
+            Thread.sleep(2000);
+
+            jmdns.close();
+
+        } catch (UnknownHostException e) {
+            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
 
 }

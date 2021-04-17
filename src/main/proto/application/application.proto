@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package application;
+
+option java_package = "com.proto.application";
+option java_multiple_files = true;
+
+// this service includes two types APIs, server-side streaming and client-side streaming
+
+message ApplicationDetails {
+  string name = 1;
+  string publisher = 2;
+  double storageOccupied = 3;
+  double storageRemaining = 4;
+  string deploymentDate = 5;
+}
+
+message ApplicationDetailsResponse {
+  ApplicationDetails applicationDetails = 1;
+}
+
+message ApplicationDetailsRequest{
+
+}
+
+service ApplicationService {
+  // server-side streaming call
+  rpc ApplicationDetails( ApplicationDetailsRequest) returns (stream ApplicationDetailsResponse) {};
+}
