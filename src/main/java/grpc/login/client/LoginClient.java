@@ -36,13 +36,13 @@ public class LoginClient {
 
         String host = serviceInfo.getHostAddresses()[0];
         int port = serviceInfo.getPort();
+//        System.out.println("host " + host);
 
         // establish the channel
         ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext()
                 .build();
 
-        //create the stub
         System.out.println("Creating stub...");
         doLogin(channel);
 
@@ -50,7 +50,7 @@ public class LoginClient {
 
     // unary call method. this will run the login function
     private void doLogin(ManagedChannel channel) {
-        // let's create the unary call
+        // let's create the unary call  //create the stub
         LoginServiceGrpc.LoginServiceBlockingStub loginClient = LoginServiceGrpc.newBlockingStub(channel);
 
         // now create the message

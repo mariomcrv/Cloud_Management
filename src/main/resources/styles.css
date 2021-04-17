@@ -1,0 +1,22 @@
+.button {
+ -fx-background-color:  #3282b8;
+ -fx-text-fill: white;
+}
+
+.button:hover{
+    -fx-border-color: white;
+    -fx-background-color: #FF5757;
+    -fx-text-fill: white;
+}
+
+.login-fields{
+    -fx-background-color: none;
+    -fx-border-color: white;
+    -fx-text-inner-color: white
+}
+
+/* this changes the color of the text fields if the credentials are invalid */
+.wrong-credentials {
+ -fx-text-inner-color: red;
+ -fx-border-color: red;
+}

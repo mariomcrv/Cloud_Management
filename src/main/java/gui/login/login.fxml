@@ -1,36 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="465.0" prefWidth="912.0" style="-fx-background-color: #272343;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.login.LoginController">
+<AnchorPane prefHeight="465.0" prefWidth="912.0" style="-fx-background-color: #272343;"
+            stylesheets="@../../../resources/styles.css" xmlns="http://javafx.com/javafx/8.0.171"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.login.LoginController">
     <children>
-        <ImageView fitHeight="585.0" fitWidth="472.0" layoutX="-2.0" layoutY="-3.0" pickOnBounds="true" preserveRatio="true">
+        <ImageView fitHeight="585.0" fitWidth="472.0" layoutX="-2.0" layoutY="-3.0" pickOnBounds="true"
+                   preserveRatio="true">
             <image>
-                <Image url="@../../../../../../../../../Downloads/SoftCloud%20Logo.png" />
+                <Image url="@../../../../../../../../../Downloads/SoftCloud%20Logo.png"/>
             </image>
         </ImageView>
-        <TextField layoutX="596.0" layoutY="156.0" prefHeight="40.0" prefWidth="213.0" promptText="Username" style="-fx-text-inner-color: white; -fx-background-color: null; -fx-border-color: white; -fx-font: white;">
+        <Label layoutX="598.0" layoutY="112.0" prefHeight="27.0" prefWidth="213.0" text="SoftCloud Management"
+               textFill="WHITE">
             <font>
-                <Font size="17.0" />
+                <Font name="System Bold" size="18.0"/>
+            </font>
+        </Label>
+        <TextField fx:id="username" layoutX="596.0" layoutY="176.0" prefHeight="40.0" prefWidth="213.0"
+                   promptText="Username"
+                   styleClass="login-fields">
+            <font>
+                <Font size="17.0"/>
             </font>
         </TextField>
-        <TextField layoutX="595.0" layoutY="208.0" prefHeight="40.0" prefWidth="214.0" promptText="Password" style="-fx-text-inner-color: white; -fx-background-color: null; -fx-border-color: white;">
+        <PasswordField fx:id="password" layoutX="596.0" layoutY="229.0" onAction="#handleLoginButtonAction"
+                       prefHeight="31.0" prefWidth="213.0" promptText="Password" styleClass="login-fields">
             <font>
-                <Font size="17.0" />
+                <Font size="17.0"/>
             </font>
-        </TextField>
-        <Button layoutX="596.0" layoutY="259.0" mnemonicParsing="false" onAction="#handleAction" prefHeight="38.0" prefWidth="78.0" text="Login">
+        </PasswordField>
+        <Button layoutX="596.0" layoutY="279.0" mnemonicParsing="false" onAction="#handleLoginButtonAction"
+                prefHeight="38.0" prefWidth="117.0" stylesheets="@../../../resources/styles.css" text="Login"
+                textFill="WHITE">
             <font>
-                <Font size="16.0" />
-            </font>
-        </Button>
-        <Button layoutX="731.0" layoutY="259.0" mnemonicParsing="false" prefHeight="38.0" prefWidth="78.0" text="Clear">
-            <font>
-                <Font size="16.0" />
+                <Font size="16.0"/>
             </font>
         </Button>
+        <Button layoutX="731.0" layoutY="279.0" mnemonicParsing="false" onAction="#handleClearButtonAction"
+                prefHeight="38.0" prefWidth="78.0" style="-fx-background-color: #0f4c75;"
+                stylesheets="@../../../resources/styles.css" text="Clear" textFill="WHITE">
+            <font>
+                <Font size="16.0"/>
+            </font>
+        </Button>
+        <FontAwesomeIconView fill="WHITE" glyphName="USER" layoutX="562.0" layoutY="202.0" size="20" text=""/>
+        <FontAwesomeIconView fill="WHITE" glyphName="KEY" layoutX="560.0" layoutY="255.0" size="20"/>
+        <Button fx:id="closeButton" layoutX="878.0" layoutY="14.0" mnemonicParsing="false"
+                onAction="#handleCloseButtonAction" text="X">
+            <font>
+                <Font size="10.0"/>
+            </font>
+        </Button>
+        <FontAwesomeIconView fill="WHITE" glyphName="CLOUD" layoutX="696.0" layoutY="109.0"/>
     </children>
 </AnchorPane>
