@@ -20,6 +20,7 @@ public class ApplicationServiceImp extends ApplicationServiceGrpc.ApplicationSer
                // String result = "Hello  response number: " + i;
                 ApplicationDetails applicationDetails = ApplicationDetails.newBuilder()
                         .setName("Mario")
+                        .setPublisher("nintendo")
                         .setStorageRemaining(Math.random()*100)
                         .build();
 

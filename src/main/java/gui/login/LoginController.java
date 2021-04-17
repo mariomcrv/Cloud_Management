@@ -6,8 +6,11 @@ import com.proto.login.LoginServiceGrpc;
 import com.proto.login.UserDetails;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import javax.jmdns.JmDNS;
@@ -17,12 +20,10 @@ import javax.jmdns.ServiceListener;
 import javax.swing.*;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ResourceBundle;
 
 // this class will run the client once it is executed by the corresponding button
-public class LoginController implements Initializable {
+public class LoginController {
 
     // declare the gRPC stub
     private static LoginServiceGrpc.LoginServiceBlockingStub loginClient;
@@ -31,16 +32,19 @@ public class LoginController implements Initializable {
     private ServiceInfo serviceInfo;
 
     @FXML
-    private javafx.scene.control.TextField username;
+    private TextField username;
 
     @FXML
-    private javafx.scene.control.PasswordField password;
+    private PasswordField password;
 
     @FXML
-    private javafx.scene.control.Button closeButton; //cloButton is the id assigned to the FXML tag
+    private Button loginButton;
 
     @FXML
-    private void handleLoginButtonAction() {
+    private Button closeButton; //closeButton is the id assigned to the FXML tag
+
+    @FXML
+    private void handleLoginButtonAction(ActionEvent e) {
 
         // get the input from the user and remove extra spaces at the start and end
         String user = username.getText().trim();
@@ -59,6 +63,7 @@ public class LoginController implements Initializable {
 
         // call the rpc response sending the request
         System.out.println("Sending request...");
+        System.out.println(serviceInfo.getPort());
         LoginResponse loginResponse = loginClient.login(loginRequest);
 
         // do something with the response
@@ -83,6 +88,17 @@ public class LoginController implements Initializable {
         password.clear();
     }
 
+    // this disable the login button when the username and password fields are empty or contain spaces only
+    @FXML
+    private void handleKeyReleased(){
+        String usernameText = username.getText();
+        String passwordText = password.getText();
+        boolean disableButton = usernameText.isEmpty() || usernameText.trim().isEmpty()
+           || passwordText.isEmpty() || passwordText.trim().isEmpty();
+        loginButton.setDisable(disableButton);
+
+    }
+
     @FXML
     private void handleCloseButtonAction() { // this is the actions performed by the closeButton button
         // get a handle to the stage
@@ -92,8 +108,8 @@ public class LoginController implements Initializable {
     }
 
     // here we will initialize the service discovery and the channel for the login service
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    @FXML
+    public void initialize() {
 
         // discover the service
         String login_service_type = "_login._tcp.local.";
@@ -111,6 +127,8 @@ public class LoginController implements Initializable {
         // the stub is declared from the beginning of the controller, we just pass the channel to enable the gRPC calls
         // that is why we have access to it
          loginClient = LoginServiceGrpc.newBlockingStub(channel);
+
+        loginButton.setDisable(true);
 
     }
 
