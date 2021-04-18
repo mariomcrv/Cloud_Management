@@ -34,6 +34,7 @@ public class LoginServer {
 
         // start the server
         server.start();
+        System.out.println("LoginServer started, I will be listening on port: " + port);
 
         //Every time we request to shut down our application, the server will shut down
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

@@ -47,7 +47,9 @@ public class LoginController {
     private Button closeButton; //closeButton is the id assigned to the FXML tag
 
     @FXML
-    private void handleLoginButtonAction() {
+    private synchronized void handleLoginButtonAction() {
+
+        loginButton.setDisable(true);
 
         // get the input from the user and remove extra spaces at the start and end
         String user = username.getText().trim();
@@ -118,30 +120,29 @@ public class LoginController {
     @FXML
     public void initialize() {
 
-        Runnable task = new Runnable() {
-            @Override
-            public void run() {
-                // discover the service
-                String login_service_type = "_login._tcp.local.";
-                // call teh method to discover the service
-                discoverLoginService(login_service_type);
-
-                String host = serviceInfo.getHostAddresses()[0];
-                int port = serviceInfo.getPort();
-
-                // gRPC: Create the channel
-                ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
-                        .usePlaintext()
-                        .build();
-
-                // the stub is declared from the beginning of the controller, we just pass the channel to enable the gRPC calls
-                // that is why we have access to it
-                loginClient = LoginServiceGrpc.newBlockingStub(channel);
-            }
-        };
         // discover the service takes too much time, that is why the task is assigned to another thread
         // meanwhile the GUI can load without waiting
-        new Thread(task).start();
+        new Thread(() -> {
+            // discover the service
+            String login_service_type = "_login._tcp.local.";
+            // call teh method to discover the service
+            discoverLoginService(login_service_type);
+
+            String host = serviceInfo.getHostAddresses()[0];
+            int port = serviceInfo.getPort();
+
+            // gRPC: Create the channel
+            ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
+                    .usePlaintext()
+                    .build();
+
+            // the stub is declared from the beginning of the controller, we just pass the channel to enable the gRPC calls
+            // that is why we have access to it
+            loginClient = LoginServiceGrpc.newBlockingStub(channel);
+            System.out.println("Client ready...");
+        }).start();
+
+
 
         loginButton.setDisable(true);
 
@@ -213,6 +214,7 @@ public class LoginController {
     }
 
     void closeStage() {
+        // parse any FXML id into a Stage type to gain access to the close method
         ((Stage) username.getScene().getWindow()).close();
     }
 }
