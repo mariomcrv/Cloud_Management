@@ -6,12 +6,15 @@ import com.proto.login.LoginServiceGrpc;
 import com.proto.login.UserDetails;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
@@ -44,7 +47,7 @@ public class LoginController {
     private Button closeButton; //closeButton is the id assigned to the FXML tag
 
     @FXML
-    private void handleLoginButtonAction(ActionEvent e) {
+    private void handleLoginButtonAction() {
 
         // get the input from the user and remove extra spaces at the start and end
         String user = username.getText().trim();
@@ -68,15 +71,19 @@ public class LoginController {
 
         // do something with the response
         if (loginResponse.getResult().equals("Success")) {
-            JOptionPane.showMessageDialog(null, "CHAMPION!!");
             // close the window and open a new one
+
+            loadHome();
+            closeStage();
+
         } else {
 
-            // clear both field if the user name is invalid and prompt a message
+            // clear both fields if the user name is invalid and prompt a message
 
             JOptionPane.showMessageDialog(null, loginResponse.getResult());
             username.clear();
             password.clear();
+            loginButton.setDisable(false);
         }
 
     }
@@ -90,11 +97,11 @@ public class LoginController {
 
     // this disable the login button when the username and password fields are empty or contain spaces only
     @FXML
-    private void handleKeyReleased(){
+    private void handleKeyReleased() {
         String usernameText = username.getText();
         String passwordText = password.getText();
         boolean disableButton = usernameText.isEmpty() || usernameText.trim().isEmpty()
-           || passwordText.isEmpty() || passwordText.trim().isEmpty();
+                || passwordText.isEmpty() || passwordText.trim().isEmpty();
         loginButton.setDisable(disableButton);
 
     }
@@ -111,22 +118,30 @@ public class LoginController {
     @FXML
     public void initialize() {
 
-        // discover the service
-        String login_service_type = "_login._tcp.local.";
-        // call teh method to discover the service
-        discoverLoginService(login_service_type);
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                // discover the service
+                String login_service_type = "_login._tcp.local.";
+                // call teh method to discover the service
+                discoverLoginService(login_service_type);
 
-        String host = serviceInfo.getHostAddresses()[0];
-        int port = serviceInfo.getPort();
+                String host = serviceInfo.getHostAddresses()[0];
+                int port = serviceInfo.getPort();
 
-        // gRPC: Create the channel
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
-                .usePlaintext()
-                .build();
+                // gRPC: Create the channel
+                ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
+                        .usePlaintext()
+                        .build();
 
-        // the stub is declared from the beginning of the controller, we just pass the channel to enable the gRPC calls
-        // that is why we have access to it
-         loginClient = LoginServiceGrpc.newBlockingStub(channel);
+                // the stub is declared from the beginning of the controller, we just pass the channel to enable the gRPC calls
+                // that is why we have access to it
+                loginClient = LoginServiceGrpc.newBlockingStub(channel);
+            }
+        };
+        // discover the service takes too much time, that is why the task is assigned to another thread
+        // meanwhile the GUI can load without waiting
+        new Thread(task).start();
 
         loginButton.setDisable(true);
 
@@ -185,5 +200,19 @@ public class LoginController {
         }
     }
 
+    void loadHome() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/gui/home/home.fxml"));
+            Stage stage = new Stage(StageStyle.DECORATED);
+            stage.setTitle("Home");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
+    void closeStage() {
+        ((Stage) username.getScene().getWindow()).close();
+    }
 }
