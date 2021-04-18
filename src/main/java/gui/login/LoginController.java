@@ -47,7 +47,7 @@ public class LoginController {
     private Button closeButton; //closeButton is the id assigned to the FXML tag
 
     @FXML
-    private synchronized void handleLoginButtonAction() {
+    private void handleLoginButtonAction() {
 
         loginButton.setDisable(true);
 

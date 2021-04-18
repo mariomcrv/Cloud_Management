@@ -34,6 +34,7 @@ public class ApplicationServer {
 
         // start the server
         server.start();
+        System.out.println("Server started... I will be listening on port: 50052");
 
         //Every time we request to shut down our application, the server will shut down
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
