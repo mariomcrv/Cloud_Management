@@ -17,7 +17,7 @@
         <ImageView fitHeight="585.0" fitWidth="472.0" layoutX="-2.0" layoutY="-3.0" pickOnBounds="true"
                    preserveRatio="true">
             <image>
-                <Image url="@../../../resources/SoftCloud Logo.jpg"/>
+                <Image url="@../../../resources/SoftCloud_Logo.jpg"/>
             </image>
         </ImageView>
         <Label layoutX="598.0" layoutY="112.0" prefHeight="27.0" prefWidth="213.0" text="SoftCloud Management"
