@@ -85,7 +85,7 @@ public class LoginController {
             JOptionPane.showMessageDialog(null, loginResponse.getResult());
             username.clear();
             password.clear();
-            loginButton.setDisable(false);
+            //loginButton.setDisable(false);
         }
 
     }

@@ -34,7 +34,7 @@ public class ApplicationServiceImp extends ApplicationServiceGrpc.ApplicationSer
 
             // sleep for a bit
         try {
-            Thread.sleep(1000);
+            Thread.sleep(2000);
         } catch (InterruptedException e){
             e.printStackTrace();
         }
