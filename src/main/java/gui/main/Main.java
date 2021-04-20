@@ -24,6 +24,8 @@ public class Main extends Application {
         primaryStage.setTitle("Login");
         primaryStage.setScene(new Scene(root));
         primaryStage.initStyle(StageStyle.UNDECORATED);
+        // add icon
+
         primaryStage.show();
 
         root.setOnMousePressed(new EventHandler<MouseEvent>() {

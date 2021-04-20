@@ -98,7 +98,7 @@ public class HomeController {
             // Create a JmDNS instance
             JmDNS jmdns = JmDNS.create(InetAddress.getLocalHost());
 
-
+            // ad service listener
             jmdns.addServiceListener(service_type, new ServiceListener() {
 
                 @Override
