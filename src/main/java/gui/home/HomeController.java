@@ -12,6 +12,7 @@ import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
+import javax.swing.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -30,54 +31,63 @@ public class HomeController {
 
     @FXML
     private void handleAppsButtonAction() {
+        try {
 
-        // disable the button until the process is finish
-        appsButton.setDisable(true);
-        // clear the textarea
-        appsTextArea.clear();
+            // disable the button until the process is finish
+            appsButton.setDisable(true);
+            // clear the textarea
+            appsTextArea.clear();
 
-        // jmDNS services
-        String host = applicationServiceInfo.getHostAddresses()[0];
-        int port = applicationServiceInfo.getPort();
+            // jmDNS services
 
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
-                .usePlaintext()
-                .build();
+            String host = applicationServiceInfo.getHostAddresses()[0];
+            int port = applicationServiceInfo.getPort();
 
-        ApplicationServiceGrpc.ApplicationServiceBlockingStub applicationClient = ApplicationServiceGrpc.newBlockingStub(channel);
 
-        //prepare the request
-        ApplicationDetailsRequest request = ApplicationDetailsRequest.newBuilder()
-                .build();
+            ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
+                    .usePlaintext()
+                    .build();
 
-        // stream the responses in a blocking manner
-        // the new thread allows us to see the new information as it arrives instead of waiting
-        new Thread(() -> {
-            AtomicInteger count = new AtomicInteger();
+            ApplicationServiceGrpc.ApplicationServiceBlockingStub applicationClient = ApplicationServiceGrpc.newBlockingStub(channel);
 
-            try {
-                appsTextArea.setText("Loading Applications...");
-                Thread.sleep(2000);
-                appsTextArea.clear();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
-            applicationClient.applicationDetails(request)
-                    .forEachRemaining(applicationDetailsResponse -> {
-                        count.getAndIncrement();
-                        appsTextArea.appendText("-------------> " + count + " <------------\n");
-                        appsTextArea.appendText("Name: " + applicationDetailsResponse.getApplicationDetails());
+            //prepare the request
+            ApplicationDetailsRequest request = ApplicationDetailsRequest.newBuilder()
+                    .build();
+
+            // stream the responses in a blocking manner
+            // the new thread allows us to see the new information as it arrives instead of waiting
+            new Thread(() -> {
+                AtomicInteger count = new AtomicInteger();
+
+                try {
+                    appsTextArea.setText("Loading Applications...");
+                    Thread.sleep(2000);
+                    appsTextArea.clear();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                applicationClient.applicationDetails(request)
+                        .forEachRemaining(applicationDetailsResponse -> {
+                            count.getAndIncrement();
+                            appsTextArea.appendText("-------------> " + count + " <------------\n");
+                            appsTextArea.appendText("Name: " + applicationDetailsResponse.getApplicationDetails());
 //                        System.out.println(applicationDetailsResponse.getApplicationDetails());
 //                    appsTextArea.appendText("Publisher: " + applicationDetailsResponse.getApplicationDetails().getPublisher());
 //                    appsTextArea.appendText("Space available: " + applicationDetailsResponse.getApplicationDetails().getStorageRemaining() + " mb");
-                    });
-            appsTextArea.appendText("-----------> Finish <----------");
+                        });
+                appsTextArea.appendText("-----------> Finish <----------");
 
-            //enable the button again
+                //enable the button again
+                appsButton.setDisable(false);
+            }).start();
+        } catch (NullPointerException e) {
+            JOptionPane.showMessageDialog(null, "Server Unavailable");
+            System.out.println(e.getMessage());
             appsButton.setDisable(false);
-        }).start();
-
+            appsTextArea.clear();
+        }
     }
 
     @FXML

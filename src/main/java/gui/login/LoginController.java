@@ -13,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -206,6 +207,8 @@ public class LoginController {
             Parent root = FXMLLoader.load(getClass().getResource("/gui/home/home.fxml"));
             Stage stage = new Stage(StageStyle.DECORATED);
             stage.setTitle("Home");
+            stage.getIcons().add(new Image(getClass().getResourceAsStream("/@../../../resources/cloud.png")));
+
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
