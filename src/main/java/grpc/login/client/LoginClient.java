@@ -6,6 +6,7 @@ import com.proto.login.LoginServiceGrpc;
 import com.proto.login.UserDetails;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
@@ -30,21 +31,33 @@ public class LoginClient {
 
     public void run() {
 
-        // discover the service
-        String login_service_type = "_login._tcp.local.";
-        discoverLoginService(login_service_type);
+        // the try catch block handles exceptions in case gRPC the service is unable to be discovered
+        // or the gRPC sever cannot be located
+        try {
+            // discover the service
+            String login_service_type = "_login._tcp.local.";
+            discoverLoginService(login_service_type);
 
-        String host = serviceInfo.getHostAddresses()[0];
-        int port = serviceInfo.getPort();
-//        System.out.println("host " + host);
+            String host = serviceInfo.getHostAddresses()[0];
+            int port = serviceInfo.getPort();
+            System.out.println("host " + host);
 
-        // establish the channel
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
-                .usePlaintext()
-                .build();
+            // establish the channel
 
-        System.out.println("Creating stub...");
-        doLogin(channel);
+            ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051)
+                    .usePlaintext()
+                    .build();
+
+            System.out.println("Creating stub...");
+            doLogin(channel);
+            // jmDNS error handling. Unable to discover the service
+        } catch (NullPointerException jmdns) {
+            System.out.println("Unable to discover the service");
+            // gRPC error handling. Unable to connect with the server
+        } catch (
+                StatusRuntimeException grpc) {
+            System.out.println("grpc server not running");
+        }
 
     }
 

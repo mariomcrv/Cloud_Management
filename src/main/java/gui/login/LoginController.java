@@ -16,24 +16,17 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import jmdns.ServiceDiscovery;
 
-import javax.jmdns.JmDNS;
-import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
-import javax.jmdns.ServiceListener;
 import javax.swing.*;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 // this class will run the client once it is executed by the corresponding button
 public class LoginController {
 
     // declare the gRPC stub
     private static LoginServiceGrpc.LoginServiceBlockingStub loginClient;
-
-    // jmdns - service info
-    private ServiceInfo serviceInfo;
 
     @FXML
     private TextField username;
@@ -49,6 +42,7 @@ public class LoginController {
 
     @FXML
     private void handleLoginButtonAction() {
+
 
         loginButton.setDisable(true);
 
@@ -69,7 +63,6 @@ public class LoginController {
 
         // call the rpc response sending the request
         System.out.println("Sending request...");
-        System.out.println(serviceInfo.getPort());
         LoginResponse loginResponse = loginClient.login(loginRequest);
 
         // do something with the response
@@ -126,8 +119,8 @@ public class LoginController {
         new Thread(() -> {
             // discover the service
             String login_service_type = "_login._tcp.local.";
-            // call teh method to discover the service
-            discoverLoginService(login_service_type);
+            // call the method to discover the service
+            ServiceInfo serviceInfo = new ServiceDiscovery().discoverService(login_service_type);
 
             String host = serviceInfo.getHostAddresses()[0];
             int port = serviceInfo.getPort();
@@ -141,66 +134,12 @@ public class LoginController {
             // that is why we have access to it
             loginClient = LoginServiceGrpc.newBlockingStub(channel);
             System.out.println("Client ready...");
+
         }).start();
 
-
-
         loginButton.setDisable(true);
-
     }
 
-
-    // jmDNS discovery service (non-static method)
-    private void discoverLoginService(String service_type) {
-
-        try {
-            // Create a JmDNS instance
-            JmDNS jmdns = JmDNS.create(InetAddress.getLocalHost());
-
-
-            jmdns.addServiceListener(service_type, new ServiceListener() {
-
-                @Override
-                public void serviceResolved(ServiceEvent event) {
-                    System.out.println("Service resolved: " + event.getInfo());
-
-                    serviceInfo = event.getInfo();
-
-                    int port = serviceInfo.getPort();
-
-                    System.out.println("resolving " + service_type + " with properties ...");
-                    System.out.println("\t port: " + port);
-                    System.out.println("\t type:" + event.getType());
-                    System.out.println("\t name: " + event.getName());
-                    System.out.println("\t description/properties: " + serviceInfo.getNiceTextString());
-                    System.out.println("\t host: " + serviceInfo.getHostAddresses()[0]);
-                }
-
-                @Override
-                public void serviceRemoved(ServiceEvent event) {
-                    System.out.println("Service removed: " + event.getInfo());
-                }
-
-                @Override
-                public void serviceAdded(ServiceEvent event) {
-                    System.out.println("Service added: " + event.getInfo());
-                }
-            });
-
-            // Wait a bit
-            Thread.sleep(2000);
-
-            jmdns.close();
-
-        } catch (UnknownHostException e) {
-            System.out.println(e.getMessage());
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
 
     void loadHome() {
         try {
