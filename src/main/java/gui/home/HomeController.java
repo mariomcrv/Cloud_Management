@@ -2,13 +2,13 @@ package gui.home;
 
 import com.proto.application.ApplicationDetailsRequest;
 import com.proto.application.ApplicationServiceGrpc;
+import gui.login.LoginController;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
-import jmdns.ServiceDiscovery;
 
 import javax.jmdns.ServiceInfo;
 import javax.swing.*;
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class HomeController {
 
     //jmDNS service
-    private ServiceInfo applicationServiceInfo;
+   private ServiceInfo applicationServiceInfo;
 
     @FXML
     private Button appsButton;
@@ -35,6 +35,7 @@ public class HomeController {
             appsTextArea.clear();
 
             // jmDNS services
+
 
             String host = applicationServiceInfo.getHostAddresses()[0];
             int port = applicationServiceInfo.getPort();
@@ -62,25 +63,25 @@ public class HomeController {
                     appsTextArea.clear();
 
 
-                applicationClient.applicationDetails(request)
-                        .forEachRemaining(applicationDetailsResponse -> {
-                            count.getAndIncrement();
-                            appsTextArea.appendText("-------------> " + count + " <------------\n");
-                            appsTextArea.appendText("Name: " + applicationDetailsResponse.getApplicationDetails());
+                    applicationClient.applicationDetails(request)
+                            .forEachRemaining(applicationDetailsResponse -> {
+                                count.getAndIncrement();
+                                appsTextArea.appendText("-------------> " + count + " <------------\n");
+                                appsTextArea.appendText("Name: " + applicationDetailsResponse.getApplicationDetails());
 //                        System.out.println(applicationDetailsResponse.getApplicationDetails());
 //                    appsTextArea.appendText("Publisher: " + applicationDetailsResponse.getApplicationDetails().getPublisher());
 //                    appsTextArea.appendText("Space available: " + applicationDetailsResponse.getApplicationDetails().getStorageRemaining() + " mb");
-                        });
-                appsTextArea.appendText("-----------> Finish <----------");
+                            });
+                    appsTextArea.appendText("-----------> Finish <----------");
 
-                //enable the button again
-                appsButton.setDisable(false);
-                // this will catch when the thread is interrupted
+                    //enable the button again
+                    appsButton.setDisable(false);
+                    // this will catch when the thread is interrupted
                 } catch (InterruptedException e) {
                     e.printStackTrace();
 
-                // catch exception and trow a message if the grpc server is not running en enable the button again
-                }catch (StatusRuntimeException test) {
+                    // catch exception and trow a message if the grpc server is not running en enable the button again
+                } catch (StatusRuntimeException test) {
                     JOptionPane.showMessageDialog(null, "gPRC sever not running");
                     appsButton.setDisable(false);
                 }
@@ -104,9 +105,11 @@ public class HomeController {
         //set the text area to read-only mode
         appsTextArea.setEditable(false);
 
-        String application_service_type = "_application._tcp.local.";
-        // call teh method to discover the service
-        applicationServiceInfo = new ServiceDiscovery().discoverService(application_service_type);
+        applicationServiceInfo = LoginController.getApplicationServiceInfo();
+
+//        String application_service_type = "_application._tcp.local.";
+//        // call teh method to discover the service
+//        applicationServiceInfo = new ServiceDiscovery().discoverService(application_service_type);
 
     }
 

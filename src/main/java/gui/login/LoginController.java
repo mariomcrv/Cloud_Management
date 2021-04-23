@@ -24,9 +24,16 @@ import java.io.IOException;
 
 // this class will run the client once it is executed by the corresponding button
 public class LoginController {
+    //data members
+
+    // service discovery. I will discover all the services from the first screen to save loading time
+    // so my other services cann have access to the hosts and ports without discovering services more than once
+    private static ServiceInfo loginServiceInfo;
+    private static ServiceInfo applicationServiceInfo;
 
     // declare the gRPC stub
     private static LoginServiceGrpc.LoginServiceBlockingStub loginClient;
+
 
     @FXML
     private TextField username;
@@ -70,7 +77,7 @@ public class LoginController {
             // close the window and open a new one
 
             loadHome();
-            closeStage();
+            hideStage();
 
         } else {
 
@@ -115,31 +122,40 @@ public class LoginController {
     public void initialize() {
 
         // discover the service takes too much time, that is why the task is assigned to another thread
-        // meanwhile the GUI can load without waiting
+        // meanwhile the GUI can load without waiting too much
+
+        // discover application service
         new Thread(() -> {
             // discover the service
-            String login_service_type = "_login._tcp.local.";
+            String application_service_type = "_application._tcp.local.";
             // call the method to discover the service
-            ServiceInfo serviceInfo = new ServiceDiscovery().discoverService(login_service_type);
-
-            String host = serviceInfo.getHostAddresses()[0];
-            int port = serviceInfo.getPort();
-
-            // gRPC: Create the channel
-            ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
-                    .usePlaintext()
-                    .build();
-
-            // the stub is declared from the beginning of the controller, we just pass the channel to enable the gRPC calls
-            // that is why we have access to it
-            loginClient = LoginServiceGrpc.newBlockingStub(channel);
-            System.out.println("Client ready...");
+            applicationServiceInfo = new ServiceDiscovery().discoverService(application_service_type);
+            System.out.println("ApplicationService Discovered");
 
         }).start();
 
+
+        // discover the login service, create the channel and the stub
+        String login_service_type = "_login._tcp.local.";
+        // call the method to discover the service
+        loginServiceInfo = new ServiceDiscovery().discoverService(login_service_type);
+        System.out.println("LoginService Discovered");
+
+        String host = loginServiceInfo.getHostAddresses()[0];
+        int port = loginServiceInfo.getPort();
+
+        // gRPC: Create the channel
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
+                .usePlaintext()
+                .build();
+
+        // the stub is declared from the beginning of the controller, we just pass the channel to enable the gRPC calls
+        // that is why we have access to it
+        loginClient = LoginServiceGrpc.newBlockingStub(channel);
+        System.out.println("Login client ready...");
+
         loginButton.setDisable(true);
     }
-
 
     void loadHome() {
         try {
@@ -155,8 +171,12 @@ public class LoginController {
         }
     }
 
-    void closeStage() {
+    void hideStage() {
         // parse any FXML id into a Stage type to gain access to the close method
-        ((Stage) username.getScene().getWindow()).close();
+        ((Stage) username.getScene().getWindow()).hide();
+    }
+
+    public static ServiceInfo getApplicationServiceInfo() {
+        return applicationServiceInfo;
     }
 }
