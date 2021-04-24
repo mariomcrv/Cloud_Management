@@ -6,6 +6,8 @@ import com.proto.application.ApplicationDetailsResponse;
 import com.proto.application.ApplicationServiceGrpc;
 import io.grpc.stub.StreamObserver;
 
+import java.io.*;
+
 public class ApplicationServiceImp extends ApplicationServiceGrpc.ApplicationServiceImplBase {
 
 
@@ -13,55 +15,53 @@ public class ApplicationServiceImp extends ApplicationServiceGrpc.ApplicationSer
     @Override
     public void applicationDetails(ApplicationDetailsRequest request, StreamObserver<ApplicationDetailsResponse> responseObserver) {
 
-        //String firstName = request.getGreeting().getFirstName();
+        // for this implementation I will use a cvs file
+        String path = "src/main/resources/mock_appdata.csv";
+        String line = "";
 
-
-    //    for (int i = 0; i < 3; i++) {
-            // String result = "Hello  response number: " + i;
-
-            ApplicationDetails applicationDetails = ApplicationDetails.newBuilder()
-                    .setName("Mario")
-                    .setPublisher("nintendo")
-                    .setStorageRemaining(Math.random() * 100)
-                    .build();
-
-            ApplicationDetailsResponse response = ApplicationDetailsResponse.newBuilder()
-                    .setApplicationDetails(applicationDetails)
-                    .build();
-
-            //send response inside the loop
-            responseObserver.onNext(response);
-
-            // sleep for a bit
         try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e){
+
+            // create buffer
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(path));
+            bufferedReader.readLine(); // skip the headers
+
+            // loop through the content until the cvs file has no more lines to retrieve data
+            while ((line = bufferedReader.readLine()) != null) { // sets current line into a string
+                String[] data = line.split(","); //store the values on an array splitting by commas
+
+
+                ApplicationDetails applicationDetails = ApplicationDetails.newBuilder()
+                        .setId(Integer.parseInt(data[0]))
+                        .setName(data[1])
+                        .setPublisher(data[2])
+                        .setStorageOccupied(Double.parseDouble(data[3]))
+                        .setStorageRemaining(Double.parseDouble(data[4]))
+                        .setStatus(data[5])
+                        .build();
+
+                ApplicationDetailsResponse response = ApplicationDetailsResponse.newBuilder()
+                        .setApplicationDetails(applicationDetails)
+                        .build();
+
+                //send response inside the loop
+                responseObserver.onNext(response);
+
+                // sleep for a bit
+                Thread.sleep(1000);
+            }
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found");
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("IOE Exception");
             e.printStackTrace();
         }
 
-        applicationDetails = ApplicationDetails.newBuilder()
-                .setName("EL Santo contra las momias")
-                .setPublisher("Lucha Libre")
-                .setStorageRemaining(Math.random() * 100)
-                .build();
 
-        response = ApplicationDetailsResponse.newBuilder()
-                .setApplicationDetails(applicationDetails)
-                .build();
-
-        //send response inside the loop
-        responseObserver.onNext(response);
-            try {
-                // wait i second to execute the next loop again
-                Thread.sleep(1000);
-
-                // below means that when the thread is interrupted
-                // print the stacktrace
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-    //    }
+        //    }
         // when we are done with the loop, we just call the completion
         responseObserver.onCompleted();
     }

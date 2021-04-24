@@ -8,11 +8,12 @@ option java_multiple_files = true;
 // this service includes two types APIs, server-side streaming and client-side streaming
 
 message ApplicationDetails {
-  string name = 1;
-  string publisher = 2;
-  double storageOccupied = 3;
-  double storageRemaining = 4;
-  string deploymentDate = 5;
+  int32 id = 1;
+  string name = 2;
+  string publisher = 3;
+  double storageOccupied = 4;
+  double storageRemaining = 5;
+  string status = 6;
 }
 
 message ApplicationDetailsResponse {

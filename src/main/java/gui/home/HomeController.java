@@ -12,7 +12,6 @@ import javafx.scene.control.TextArea;
 
 import javax.jmdns.ServiceInfo;
 import javax.swing.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class HomeController {
 
@@ -36,9 +35,13 @@ public class HomeController {
 
             // jmDNS services
 
+//            String host = applicationServiceInfo.getHostAddresses()[0];
+//            int port = applicationServiceInfo.getPort();
 
-            String host = applicationServiceInfo.getHostAddresses()[0];
-            int port = applicationServiceInfo.getPort();
+            // remove this after testing
+
+           String host = "localhost";
+           int port = 50052;
 
 
             ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
@@ -55,24 +58,28 @@ public class HomeController {
             // stream the responses in a blocking manner
             // the new thread allows us to see the new information as it arrives instead of waiting
             new Thread(() -> {
-                AtomicInteger count = new AtomicInteger();
+
+               // AtomicInteger count = new AtomicInteger();
 
                 try {
                     appsTextArea.setText("Loading Applications...");
-                    Thread.sleep(2000);
+                    Thread.sleep(1000);
                     appsTextArea.clear();
 
 
                     applicationClient.applicationDetails(request)
                             .forEachRemaining(applicationDetailsResponse -> {
-                                count.getAndIncrement();
-                                appsTextArea.appendText("-------------> " + count + " <------------\n");
-                                appsTextArea.appendText("Name: " + applicationDetailsResponse.getApplicationDetails());
-//                        System.out.println(applicationDetailsResponse.getApplicationDetails());
-//                    appsTextArea.appendText("Publisher: " + applicationDetailsResponse.getApplicationDetails().getPublisher());
-//                    appsTextArea.appendText("Space available: " + applicationDetailsResponse.getApplicationDetails().getStorageRemaining() + " mb");
+                               // count.getAndIncrement();
+                                appsTextArea.appendText("----------------------------------------\n");
+                                appsTextArea.appendText("ID: " + applicationDetailsResponse.getApplicationDetails().getId() + "\n");
+                                appsTextArea.appendText("Name: " + applicationDetailsResponse.getApplicationDetails().getName() + "\n");
+                                appsTextArea.appendText("Publisher: " + applicationDetailsResponse.getApplicationDetails().getPublisher() + "\n");
+                                appsTextArea.appendText("Used Storage: " + applicationDetailsResponse.getApplicationDetails().getStorageOccupied() + "\n");
+                                appsTextArea.appendText("Free space: " + applicationDetailsResponse.getApplicationDetails().getStorageRemaining() + "\n");
+                                appsTextArea.appendText("Status: " + applicationDetailsResponse.getApplicationDetails().getStatus() + "\n");
+
                             });
-                    appsTextArea.appendText("-----------> Finish <----------");
+                    appsTextArea.appendText("----------------- End ------------------");
 
                     //enable the button again
                     appsButton.setDisable(false);

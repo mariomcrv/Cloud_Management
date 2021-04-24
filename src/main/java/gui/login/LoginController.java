@@ -6,6 +6,7 @@ import com.proto.login.LoginServiceGrpc;
 import com.proto.login.UserDetails;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -121,40 +122,50 @@ public class LoginController {
     @FXML
     public void initialize() {
 
+
         // discover the service takes too much time, that is why the task is assigned to another thread
         // meanwhile the GUI can load without waiting too much
 
-        // discover application service
         new Thread(() -> {
+
             // discover the service
+            System.out.println(" Discovering Application services on: " +
+                    (Platform.isFxApplicationThread() ? "UI Thread" : "Background Thread"));
             String application_service_type = "_application._tcp.local.";
             // call the method to discover the service
-            applicationServiceInfo = new ServiceDiscovery().discoverService(application_service_type);
-            System.out.println("ApplicationService Discovered");
-
+                applicationServiceInfo = new ServiceDiscovery().discoverService(application_service_type);
         }).start();
 
+        try {
 
-        // discover the login service, create the channel and the stub
-        String login_service_type = "_login._tcp.local.";
-        // call the method to discover the service
-        loginServiceInfo = new ServiceDiscovery().discoverService(login_service_type);
-        System.out.println("LoginService Discovered");
+            // discover the login service, create the channel and the stub
+            String login_service_type = "_login._tcp.local.";
+            // call the method to discover the service
+            System.out.println(" Discovering Login services on: " +
+                    (Platform.isFxApplicationThread() ? "UI Thread" : "Background Thread"));
+            loginServiceInfo = new ServiceDiscovery().discoverService(login_service_type);
 
-        String host = loginServiceInfo.getHostAddresses()[0];
-        int port = loginServiceInfo.getPort();
+            String host = loginServiceInfo.getHostAddresses()[0];
+            int port = loginServiceInfo.getPort();
 
-        // gRPC: Create the channel
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
-                .usePlaintext()
-                .build();
+            // gRPC: Create the channel
+            ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
+                    .usePlaintext()
+                    .build();
 
-        // the stub is declared from the beginning of the controller, we just pass the channel to enable the gRPC calls
-        // that is why we have access to it
-        loginClient = LoginServiceGrpc.newBlockingStub(channel);
-        System.out.println("Login client ready...");
+            // the stub is declared from the beginning of the controller, we just pass the channel to enable the gRPC calls
+            // that is why we have access to it
+            loginClient = LoginServiceGrpc.newBlockingStub(channel);
+            System.out.println("Login client ready...");
+            System.out.println("Resources loaded and ready to go...");
 
-        loginButton.setDisable(true);
+            loginButton.setDisable(true);
+        } catch (NullPointerException e) {
+            System.out.println("jmDNS: unable to discover the services");
+            JOptionPane.showMessageDialog(null, "Unable to discover services. Please, initialize the servers");
+            System.exit(0);
+        }
+
     }
 
     void loadHome() {
@@ -174,6 +185,11 @@ public class LoginController {
     void hideStage() {
         // parse any FXML id into a Stage type to gain access to the close method
         ((Stage) username.getScene().getWindow()).hide();
+    }
+
+    void closeStage() {
+        // parse any FXML id into a Stage type to gain access to the close method
+        ((Stage) username.getScene().getWindow()).close();
     }
 
     public static ServiceInfo getApplicationServiceInfo() {
