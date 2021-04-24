@@ -24,7 +24,27 @@ message ApplicationDetailsRequest{
 
 }
 
+message UserStatusRequest {
+  string user = 1;
+}
+
+message UserStatusResponse {
+  string user = 1;
+  Status status = 2;
+
+  enum Status {
+    Active = 0;
+    Inactive = 1;
+    Suspended = 2;
+    Validating = 3;
+  }
+
+}
+
 service ApplicationService {
   // server-side streaming call
-  rpc ApplicationDetails( ApplicationDetailsRequest) returns (stream ApplicationDetailsResponse) {};
+  rpc ApplicationDetails(ApplicationDetailsRequest) returns (stream ApplicationDetailsResponse) {};
+
+  // client-side streaming call
+  rpc UserStatus (stream UserStatusRequest) returns (UserStatusResponse) {};
 }

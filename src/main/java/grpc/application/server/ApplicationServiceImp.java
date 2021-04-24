@@ -1,12 +1,12 @@
 package grpc.application.server;
 
-import com.proto.application.ApplicationDetails;
-import com.proto.application.ApplicationDetailsRequest;
-import com.proto.application.ApplicationDetailsResponse;
-import com.proto.application.ApplicationServiceGrpc;
+import com.proto.application.*;
 import io.grpc.stub.StreamObserver;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class ApplicationServiceImp extends ApplicationServiceGrpc.ApplicationServiceImplBase {
 
@@ -47,7 +47,7 @@ public class ApplicationServiceImp extends ApplicationServiceGrpc.ApplicationSer
                 responseObserver.onNext(response);
 
                 // sleep for a bit
-                Thread.sleep(1000);
+                Thread.sleep(1500);
             }
 
         } catch (InterruptedException e) {
@@ -64,6 +64,44 @@ public class ApplicationServiceImp extends ApplicationServiceGrpc.ApplicationSer
         //    }
         // when we are done with the loop, we just call the completion
         responseObserver.onCompleted();
+    }
+
+    // client-streaming call
+    @Override
+    public StreamObserver<UserStatusRequest> userStatus(StreamObserver<UserStatusResponse> responseObserver) {
+
+        // we have to return an object of type Stream Observer
+        StreamObserver<UserStatusRequest> requestObserver = new StreamObserver<UserStatusRequest>() {
+           // for this use case, we will use a string to concatenate all the results
+           // I sill store the result on an array of type response
+           String users = "User Status\n";
+
+            @Override
+            public void onNext(UserStatusRequest value) {
+                System.out.println("Retrieving: " + value.getUser());
+                users += "User: " + value.getUser() + " Status: " + UserStatusResponse.Status.forNumber((int) (Math.random() * 4)) + "\n";
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                // do nothing
+            }
+
+            @Override
+            public void onCompleted() {
+                // build a reply
+                UserStatusResponse reply = UserStatusResponse.newBuilder()
+                        .setUser(users)
+                        .build();
+
+                responseObserver.onNext(reply);
+
+                responseObserver.onCompleted();
+            }
+        };
+
+        return requestObserver;
+
     }
 }
 

@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.util.Properties;
 
-public class LoginServer {
+public class LoginServer extends Thread{
 
     public static void main(String[] args) throws IOException, InterruptedException {
         System.out.println("I am a gRPC Login server!");
@@ -45,6 +45,50 @@ public class LoginServer {
 
         //if the do not do this, the service starts and the program will finish
         server.awaitTermination();
+    }
+
+    // method to create threads of the server
+    @Override
+    public void run (){
+        System.out.println("I am a gRPC Login server!");
+
+        // create instance of the server class to run the methods to obtain the properties and register the service
+        LoginServer loginServer = new LoginServer();
+
+        // jmdns method to get service properties
+        Properties prop = loginServer.getProperties();
+
+        // jmdns method to register the service passing in the properties
+        loginServer.registerService(prop);
+        // jmdns, we extract the port number from the properties
+        int port = Integer.parseInt(prop.getProperty("service_port"));
+
+        //create the server
+        Server server = ServerBuilder.forPort(port) // port created above
+                .addService(new LoginServiceImp())
+                .build();
+
+        // start the server
+        try {
+            server.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("LoginServer started, I will be listening on port: " + port);
+
+        //Every time we request to shut down our application, the server will shut down
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Received Shutdown Request");
+            server.shutdown();
+            System.out.println("Successfully stopped the server");
+        }));
+
+        //if the do not do this, the service starts and the program will finish
+        try {
+            server.awaitTermination();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     // --> METHODS FOR jmDNS <--

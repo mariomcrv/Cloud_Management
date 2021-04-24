@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.util.Properties;
 
-public class ApplicationServer {
+public class ApplicationServer extends Thread {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         System.out.println("I am a gRPC Login server!");
@@ -34,7 +34,7 @@ public class ApplicationServer {
 
         // start the server
         server.start();
-        System.out.println("Server started... I will be listening on port: 50052");
+        System.out.println("Application server started... I will be listening on port: 50052");
 
         //Every time we request to shut down our application, the server will shut down
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -45,6 +45,50 @@ public class ApplicationServer {
 
         //if the do not do this, the service starts and the program will finish
         server.awaitTermination();
+    }
+
+    // this method will allow me to create and initialize the servers at the same time from a single method
+    @Override
+    public void run() {
+        System.out.println("I am a gRPC Login server!");
+
+        // create instance of the server class to run the methods to obtain the properties and register the service
+        ApplicationServer applicationServer = new ApplicationServer();
+
+        // jmdns method to get service properties
+        Properties prop = applicationServer.getProperties();
+
+        // jmdns method to register the service passing in the properties
+        applicationServer.registerService(prop);
+        // jmdns, we extract the port number from the properties
+        int port = Integer.parseInt(prop.getProperty("service_port"));
+
+        //create the server
+        Server server = ServerBuilder.forPort(port) // port created above
+                .addService(new ApplicationServiceImp())
+                .build();
+
+        // start the server
+        try {
+            server.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Server started... I will be listening on port: 50052");
+
+        //Every time we request to shut down our application, the server will shut down
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Received Shutdown Request");
+            server.shutdown();
+            System.out.println("Successfully stopped the server");
+        }));
+
+        //if the do not do this, the service starts and the program will finish
+        try {
+            server.awaitTermination();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     // --> METHODS FOR jmDNS <--

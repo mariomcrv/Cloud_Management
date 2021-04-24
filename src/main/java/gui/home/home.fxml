@@ -11,7 +11,7 @@
 <AnchorPane prefHeight="508.0" prefWidth="572.0" stylesheets="@../../../resources/styles.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.home.HomeController">
     <children>
         <FontAwesomeIconView glyphName="CLOUD" layoutX="120.0" layoutY="66.0" size="50" text="" />
-        <Label layoutX="202.0" layoutY="20.0" prefHeight="59.0" prefWidth="266.0" text="Home Screen">
+        <Label layoutX="202.0" layoutY="20.0" prefHeight="59.0" prefWidth="266.0" text="Applications">
             <font>
                 <Font size="41.0" />
             </font>
@@ -19,5 +19,6 @@
         <Button fx:id="appsButton" layoutX="30.0" layoutY="129.0" mnemonicParsing="false" onAction="#handleAppsButtonAction" prefHeight="67.0" prefWidth="156.0" text="Check Applications" />
       <TextArea fx:id="appsTextArea" layoutX="202.0" layoutY="129.0" prefHeight="345.0" prefWidth="335.0" />
       <Line endX="232.0" layoutX="220.0" layoutY="79.0" startX="-100.0" />
+      <Button fx:id="usersButton" layoutX="30.0" layoutY="221.0" mnemonicParsing="false" onAction="#handleUsersButtonAction" prefHeight="67.0" prefWidth="156.0" text="Verify Users" />
     </children>
 </AnchorPane>
