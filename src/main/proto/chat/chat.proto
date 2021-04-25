@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package chat;
+
+option java_package = "com.proto.chat";
+option java_multiple_files = true;
+
+message ChatMessagingRequest{
+  string message = 1;
+}
+
+message ChatMessagingResponse {
+  string serverReply = 1;
+}
+
+service ChatService {
+  // bi-directional streaming
+  rpc ChatMessaging (ChatMessagingRequest) returns (ChatMessagingResponse) {};
+
+}

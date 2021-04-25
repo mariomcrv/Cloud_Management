@@ -1,4 +1,4 @@
-package grpc.login.server;
+package grpc.chat.server;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -11,30 +11,30 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.util.Properties;
 
-public class LoginServer extends Thread {
+public class ChatServer extends Thread {
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        System.out.println("I am a gRPC Login server!");
+        System.out.println("I am a gRPC Chat server!");
 
         // create instance of the server class to run the methods to obtain the properties and register the service
-        LoginServer loginServer = new LoginServer();
+        ChatServer chatServer = new ChatServer();
 
         // jmdns method to get service properties
-        Properties prop = loginServer.getProperties();
+        Properties prop = chatServer.getProperties();
 
         // jmdns method to register the service passing in the properties
-        loginServer.registerService(prop);
+        chatServer.registerService(prop);
         // jmdns, we extract the port number from the properties
         int port = Integer.parseInt(prop.getProperty("service_port"));
 
         //create the server
         Server server = ServerBuilder.forPort(port) // port created above
-                .addService(new LoginServiceImp())
+                .addService(new ChatServiceImp())
                 .build();
 
         // start the server
         server.start();
-        System.out.println("LoginServer started, I will be listening on port: " + port);
+        System.out.println("ChatServer started, I will be listening on port: " + port);
 
         //Every time we request to shut down our application, the server will shut down
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -50,22 +50,22 @@ public class LoginServer extends Thread {
     // method to create threads of the server
     @Override
     public void run() {
-        System.out.println("I am a gRPC Login server!");
+        System.out.println("I am a gRPC Chat server!");
 
         // create instance of the server class to run the methods to obtain the properties and register the service
-        LoginServer loginServer = new LoginServer();
+        ChatServer chatServer = new ChatServer();
 
         // jmdns method to get service properties
-        Properties prop = loginServer.getProperties();
+        Properties prop = chatServer.getProperties();
 
         // jmdns method to register the service passing in the properties
-        loginServer.registerService(prop);
+        chatServer.registerService(prop);
         // jmdns, we extract the port number from the properties
         int port = Integer.parseInt(prop.getProperty("service_port"));
 
         //create the server
         Server server = ServerBuilder.forPort(port) // port created above
-                .addService(new LoginServiceImp())
+                .addService(new ChatServiceImp())
                 .build();
 
         // start the server
@@ -74,7 +74,7 @@ public class LoginServer extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("LoginServer started, I will be listening on port: " + port);
+        System.out.println("Chat server started, I will be listening on port: " + port);
 
         //Every time we request to shut down our application, the server will shut down
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -98,7 +98,7 @@ public class LoginServer extends Thread {
         Properties prop = null;
 
         // choose the properties file containing  the details of the service
-        try (InputStream input = new FileInputStream("src/main/resources/login.properties")) {
+        try (InputStream input = new FileInputStream("src/main/resources/chat.properties")) {
 
             prop = new Properties();
 

@@ -133,8 +133,7 @@ public class HomeController {
 
             @Override
             public void onNext(UserStatusResponse value) {
-                //we get a response form the server
-                System.out.println("Received a response from the server");
+
                 appsTextArea.setText(value.getUser());
                 // onNext will be called only once
             }
@@ -149,7 +148,7 @@ public class HomeController {
             public void onCompleted() {
                 // the server is done sending us data
                 // on completed will be called after onNext()
-                System.out.println("Server has completed sending us something");
+                System.out.println("Server has completed sending us the status of the users");
                 latch.countDown();
             }
         });
@@ -190,7 +189,7 @@ public class HomeController {
             //enable the button again
             disableButtons(false);
             // finish process
-            System.out.println("Finished");
+            System.out.println("Finished Checking the users");
 
             try {
                 latch.await(3L, TimeUnit.SECONDS);
@@ -198,6 +197,7 @@ public class HomeController {
                 e.printStackTrace();
             }
 
+            // we resume the functions of the main thread once the background thread is complete
             Platform.runLater(() -> {
                 disableButtons(false);
             });

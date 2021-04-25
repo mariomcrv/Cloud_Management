@@ -47,7 +47,7 @@ public class ApplicationServiceImp extends ApplicationServiceGrpc.ApplicationSer
                 responseObserver.onNext(response);
 
                 // sleep for a bit
-                Thread.sleep(1500);
+                Thread.sleep(600);
             }
 
         } catch (InterruptedException e) {
@@ -74,7 +74,7 @@ public class ApplicationServiceImp extends ApplicationServiceGrpc.ApplicationSer
         StreamObserver<UserStatusRequest> requestObserver = new StreamObserver<UserStatusRequest>() {
            // for this use case, we will use a string to concatenate all the results
            // I sill store the result on an array of type response
-           String users = "User Status\n";
+           String users = ">>>>> Users Status <<<<<\n";
 
             @Override
             public void onNext(UserStatusRequest value) {
