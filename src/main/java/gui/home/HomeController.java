@@ -11,8 +11,14 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import javax.jmdns.ServiceInfo;
 import javax.swing.*;
@@ -39,6 +45,9 @@ public class HomeController {
     private Button usersButton;
 
     @FXML
+    private Button chatButton;
+
+    @FXML
     private TextArea appsTextArea;
 
 
@@ -53,12 +62,12 @@ public class HomeController {
 
             // the new thread allows us to see the new information as it arrives instead of waiting
             new Thread(() -> {
-            // at this point, the channel and the stubs are already created
-            //prepare the request
-            ApplicationDetailsRequest request = ApplicationDetailsRequest.newBuilder()
-                    .build();
+                // at this point, the channel and the stubs are already created
+                //prepare the request
+                ApplicationDetailsRequest request = ApplicationDetailsRequest.newBuilder()
+                        .build();
 
-            // stream the responses in a blocking manner
+                // stream the responses in a blocking manner
                 try {
                     appsTextArea.setText("Loading Applications...");
                     Thread.sleep(1000);
@@ -86,10 +95,10 @@ public class HomeController {
                     appsTextArea.appendText("----------------- End ------------------");
 
                     Platform.runLater(() -> {
-                    //enable the button again
-                    disableButtons(false);
-                    // finish process
-                    System.out.println("Finished Checking Applications");
+                        //enable the button again
+                        disableButtons(false);
+                        // finish process
+                        System.out.println("Finished Checking Applications");
                     });
 
                     // this will catch when the thread is interrupted
@@ -127,88 +136,92 @@ public class HomeController {
 
         new Thread(() -> {
 
-        CountDownLatch latch = new CountDownLatch(1);
+            CountDownLatch latch = new CountDownLatch(1);
 
-        StreamObserver<UserStatusRequest> requestObserver = applicationAsync.userStatus(new StreamObserver<UserStatusResponse>() {
+            StreamObserver<UserStatusRequest> requestObserver = applicationAsync.userStatus(new StreamObserver<UserStatusResponse>() {
 
-            @Override
-            public void onNext(UserStatusResponse value) {
+                @Override
+                public void onNext(UserStatusResponse value) {
 
-                appsTextArea.setText(value.getUser());
-                // onNext will be called only once
-            }
+                    appsTextArea.setText(value.getUser());
+                    // onNext will be called only once
+                }
 
-            @Override
-            public void onError(Throwable t) {
-                // we get an error from the server
+                @Override
+                public void onError(Throwable t) {
+                    // we get an error from the server
+                    JOptionPane.showMessageDialog(null, "gRPC, error from the server");
+                    appsTextArea.setText("gRPC, error from the server");
 
-            }
+                }
 
-            @Override
-            public void onCompleted() {
-                // the server is done sending us data
-                // on completed will be called after onNext()
-                System.out.println("Server has completed sending us the status of the users");
-                latch.countDown();
-            }
-        });
-
-
-        // stream the users
-
-        // for this implementation I will use a cvs file
-        String path = "src/main/resources/mock_users.csv";
-        String line = "";
-
-        try {
-
-            // create buffer
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(path));
-            bufferedReader.readLine(); // skip the headers
-
-
-
-            // loop through the content until the cvs file has no more lines to retrieve data
-            while ((line = bufferedReader.readLine()) != null) { // sets current line into a string
-                String str = line; //store the values a string
-
-
-                appsTextArea.setText("sending user: " + str);
-                requestObserver.onNext(UserStatusRequest.newBuilder()
-                        .setUser(str)
-                        .build());
-
-                Thread.sleep(500);
-
-            }
-
-            // we tell the server that the client is done sending data
-            requestObserver.onCompleted();
-
-
-            //enable the button again
-            disableButtons(false);
-            // finish process
-            System.out.println("Finished Checking the users");
-
-            try {
-                latch.await(3L, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            // we resume the functions of the main thread once the background thread is complete
-            Platform.runLater(() -> {
-                disableButtons(false);
+                @Override
+                public void onCompleted() {
+                    // the server is done sending us data
+                    // on completed will be called after onNext()
+                    System.out.println("Server has completed sending us the status of the users");
+                    latch.countDown();
+                }
             });
 
-        } catch (FileNotFoundException e) {
-            System.out.println("Users file not found");
-        } catch (IOException e) {
-            System.out.println("IOE Exception");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
+            // stream the users
+
+            // for this implementation I will use a cvs file
+            String path = "src/main/resources/mock_users.csv";
+            String line = "";
+
+            try {
+
+                // create buffer
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(path));
+                bufferedReader.readLine(); // skip the headers
+
+
+                // loop through the content until the cvs file has no more lines to retrieve data
+                while ((line = bufferedReader.readLine()) != null) { // sets current line into a string
+                    String str = line; //store the values a string
+
+
+                    appsTextArea.setText("sending user: " + str);
+                    requestObserver.onNext(UserStatusRequest.newBuilder()
+                            .setUser(str)
+                            .build());
+
+                    Thread.sleep(500);
+
+                }
+
+                // we tell the server that the client is done sending data
+                requestObserver.onCompleted();
+
+
+                //enable the button again
+                disableButtons(false);
+                // finish process
+                System.out.println("Finished Checking the users");
+
+                try {
+                    latch.await(3L, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                // we resume the functions of the main thread once the background thread is complete
+                Platform.runLater(() -> {
+                    disableButtons(false);
+                });
+
+            } catch (FileNotFoundException e) {
+                System.out.println("Users file not found");
+            } catch (IOException e) {
+                System.out.println("IOE Exception");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (RuntimeException e) {
+                JOptionPane.showMessageDialog(null, "gRPC server unavailable");
+            }
+
         }).start();
     }
 
@@ -221,14 +234,8 @@ public class HomeController {
         applicationServiceInfo = LoginController.getApplicationServiceInfo();
 
         // jmDNS services
-
-//            String host = applicationServiceInfo.getHostAddresses()[0];
-//            int port = applicationServiceInfo.getPort();
-
-        // remove this after testing
-
-        String host = "localhost";
-        int port = 50052;
+            String host = applicationServiceInfo.getHostAddresses()[0];
+            int port = applicationServiceInfo.getPort();
 
         // create the channel
         ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
@@ -244,6 +251,21 @@ public class HomeController {
     public void disableButtons(boolean bool) {
         appsButton.setDisable(bool);
         usersButton.setDisable(bool);
+        chatButton.setDisable(bool);
+    }
+
+    public void loadChat() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/gui/chat/chat.fxml"));
+            Stage stage = new Stage(StageStyle.DECORATED);
+            stage.setTitle("Chat");
+            stage.getIcons().add(new Image(getClass().getResourceAsStream("/@../../../resources/cloud.png")));
+
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

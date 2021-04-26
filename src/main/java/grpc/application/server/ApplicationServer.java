@@ -14,7 +14,7 @@ import java.util.Properties;
 public class ApplicationServer extends Thread {
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        System.out.println("I am a gRPC Login server!");
+        System.out.println("I am a gRPC Application server!");
 
         // create instance of the server class to run the methods to obtain the properties and register the service
         ApplicationServer applicationServer = new ApplicationServer();
@@ -50,7 +50,7 @@ public class ApplicationServer extends Thread {
     // this method will allow me to create and initialize the servers at the same time from a single method
     @Override
     public void run() {
-        System.out.println("I am a gRPC Login server!");
+        System.out.println("I am a gRPC Application server!");
 
         // create instance of the server class to run the methods to obtain the properties and register the service
         ApplicationServer applicationServer = new ApplicationServer();
@@ -74,7 +74,7 @@ public class ApplicationServer extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Server started... I will be listening on port: 50052");
+        System.out.println("Application server started, I will be listening on port: 50052");
 
         //Every time we request to shut down our application, the server will shut down
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

@@ -15,6 +15,6 @@ message ChatMessagingResponse {
 
 service ChatService {
   // bi-directional streaming
-  rpc ChatMessaging (ChatMessagingRequest) returns (ChatMessagingResponse) {};
+  rpc ChatMessaging (stream ChatMessagingRequest) returns (stream ChatMessagingResponse) {};
 
 }

@@ -31,6 +31,8 @@ public class LoginController {
     // so my other services cann have access to the hosts and ports without discovering services more than once
     private static ServiceInfo loginServiceInfo;
     private static ServiceInfo applicationServiceInfo;
+    private static ServiceInfo chatServiceInfo;
+
 
     // declare the gRPC stub
     private static LoginServiceGrpc.LoginServiceBlockingStub loginClient;
@@ -50,44 +52,47 @@ public class LoginController {
 
     @FXML
     private void handleLoginButtonAction() {
+        try {
 
+            loginButton.setDisable(true);
 
-        loginButton.setDisable(true);
+            // get the input from the user and remove extra spaces at the start and end
+            String user = username.getText().trim();
+            String pass = password.getText().trim();
 
-        // get the input from the user and remove extra spaces at the start and end
-        String user = username.getText().trim();
-        String pass = password.getText().trim();
+            // gRPC: create the message for the request
+            UserDetails userDetails = UserDetails.newBuilder()
+                    .setUsername(user)
+                    .setPassword(pass)
+                    .build();
 
-        // gRPC: create the message for the request
-        UserDetails userDetails = UserDetails.newBuilder()
-                .setUsername(user)
-                .setPassword(pass)
-                .build();
+            // gRPC: put the message into the request
+            LoginRequest loginRequest = LoginRequest.newBuilder()
+                    .setUserDetails(userDetails)
+                    .build();
 
-        // gRPC: put the message into the request
-        LoginRequest loginRequest = LoginRequest.newBuilder()
-                .setUserDetails(userDetails)
-                .build();
+            // call the rpc response sending the request
+            System.out.println("Sending request...");
+            LoginResponse loginResponse = loginClient.login(loginRequest);
 
-        // call the rpc response sending the request
-        System.out.println("Sending request...");
-        LoginResponse loginResponse = loginClient.login(loginRequest);
+            // do something with the response
+            if (loginResponse.getResult().equals("Success")) {
+                // close the window and open a new one
 
-        // do something with the response
-        if (loginResponse.getResult().equals("Success")) {
-            // close the window and open a new one
+                loadHome();
+                hideStage();
 
-            loadHome();
-            hideStage();
+            } else {
 
-        } else {
+                // clear both fields if the user name is invalid and prompt a message
 
-            // clear both fields if the user name is invalid and prompt a message
-
-            JOptionPane.showMessageDialog(null, loginResponse.getResult());
-            username.clear();
-            password.clear();
-            //loginButton.setDisable(false);
+                JOptionPane.showMessageDialog(null, loginResponse.getResult());
+                username.clear();
+                password.clear();
+                //loginButton.setDisable(false);
+            }
+        }catch (RuntimeException e) {
+            JOptionPane.showMessageDialog(null, "gRPC: Unable to connect to server");
         }
 
     }
@@ -122,18 +127,28 @@ public class LoginController {
     @FXML
     public void initialize() {
 
-
         // discover the service takes too much time, that is why the task is assigned to another thread
         // meanwhile the GUI can load without waiting too much
 
         new Thread(() -> {
 
             // discover the service
-            System.out.println(" Discovering Application services on: " +
+            System.out.println("Discovering Application services on: " +
                     (Platform.isFxApplicationThread() ? "UI Thread" : "Background Thread"));
             String application_service_type = "_application._tcp.local.";
             // call the method to discover the service
-                applicationServiceInfo = new ServiceDiscovery().discoverService(application_service_type);
+            applicationServiceInfo = new ServiceDiscovery().discoverService(application_service_type);
+        }).start();
+
+        // discover chat services
+        new Thread(() -> {
+
+            // discover the service
+            System.out.println(" Discovering Application services on: " +
+                    (Platform.isFxApplicationThread() ? "UI Thread" : "Background Thread"));
+            String application_service_type = "_chat._tcp.local.";
+            // call the method to discover the service
+            chatServiceInfo = new ServiceDiscovery().discoverService(application_service_type);
         }).start();
 
         try {
@@ -168,7 +183,7 @@ public class LoginController {
 
     }
 
-    void loadHome() {
+    public void loadHome() {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/gui/home/home.fxml"));
             Stage stage = new Stage(StageStyle.DECORATED);
@@ -182,17 +197,21 @@ public class LoginController {
         }
     }
 
-    void hideStage() {
+    public void hideStage() {
         // parse any FXML id into a Stage type to gain access to the close method
         ((Stage) username.getScene().getWindow()).hide();
     }
 
-    void closeStage() {
+    public void closeStage() {
         // parse any FXML id into a Stage type to gain access to the close method
         ((Stage) username.getScene().getWindow()).close();
     }
 
     public static ServiceInfo getApplicationServiceInfo() {
         return applicationServiceInfo;
+    }
+
+    public static ServiceInfo getChatServiceInfo() {
+        return chatServiceInfo;
     }
 }
