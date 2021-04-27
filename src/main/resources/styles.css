@@ -1,6 +1,8 @@
 .button {
  -fx-background-color:  #3282b8;
  -fx-text-fill: white;
+ -fx-border-radius: 20px;
+ -fx-background-radius: 20px;
 }
 
 .button:hover{
@@ -15,8 +17,3 @@
     -fx-text-inner-color: white
 }
 
-/* this changes the color of the text fields if the credentials are invalid */
-.wrong-credentials {
- -fx-text-inner-color: red;
- -fx-border-color: red;
-}
