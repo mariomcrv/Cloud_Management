@@ -104,7 +104,7 @@ public class LoginController {
         password.clear();
     }
 
-    // this disable the login button when the username and password fields are empty or contain spaces only
+    // this disables the login button when the username and password fields are empty or contain spaces only
     @FXML
     private void handleKeyReleased() {
         String usernameText = username.getText();
@@ -112,7 +112,6 @@ public class LoginController {
         boolean disableButton = usernameText.isEmpty() || usernameText.trim().isEmpty()
                 || passwordText.isEmpty() || passwordText.trim().isEmpty();
         loginButton.setDisable(disableButton);
-
     }
 
     @FXML
@@ -177,7 +176,7 @@ public class LoginController {
             loginButton.setDisable(true);
         } catch (NullPointerException e) {
             System.out.println("jmDNS: unable to discover the services");
-            JOptionPane.showMessageDialog(null, "Unable to discover services. Please, initialize the servers");
+            JOptionPane.showMessageDialog(null, "Unable to discover services. Please, verify the servers");
             System.exit(0);
         }
 

@@ -38,79 +38,84 @@ public class ChatController {
     @FXML
     private TextField messageTextField;
 
-//    @FXML
-//    private void handleSendButtonAction() {
-//
-//
-//    }
+    // this disables the login button when the username and password fields are empty or contain spaces only
+    @FXML
+    private void handleKeyReleased() {
+        String message = messageTextField.getText();
+        boolean disableButton = message.isEmpty() || message.trim().isEmpty();
+        sendButton.setDisable(disableButton);
+    }
 
     @FXML
     private void initialize() {
 
-            // text area non-editable the text area
-            chatTextArea.setEditable(false);
+        // text area non-editable the text area
+        chatTextArea.setEditable(false);
 
-            // fetch the already discovered services
-            chatServiceInfo = LoginController.getChatServiceInfo();
+        // disable send button
+        sendButton.setDisable(true);
 
-            // jmDNS services
-            String host = chatServiceInfo.getHostAddresses()[0];
-            int port = chatServiceInfo.getPort();
+        // fetch the already discovered services
+        chatServiceInfo = LoginController.getChatServiceInfo();
 
-            // Create a channel
-            ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
-                    .usePlaintext()
-                    .build();
+        // jmDNS services
+        String host = chatServiceInfo.getHostAddresses()[0];
+        int port = chatServiceInfo.getPort();
 
-            // Create an async stub with the channel
-            ChatServiceGrpc.ChatServiceStub asyncStub = ChatServiceGrpc.newStub(channel);
+        // Create a channel
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
+                .usePlaintext()
+                .build();
 
-            // Open a connection to the server
-            StreamObserver<ChatMessagingRequest> requestObserver = asyncStub.chatMessaging(new StreamObserver<ChatMessagingResponse>() {
+        // Create an async stub with the channel
+        ChatServiceGrpc.ChatServiceStub asyncStub = ChatServiceGrpc.newStub(channel);
 
-                // Handler for messages from the server
-                @Override
-                public void onNext(ChatMessagingResponse value) {
-                    // Display the message from the server
-                    Platform.runLater(() -> {
-                        chatTextArea.appendText(value.getServerReply() + "\n");
-                    });
-                }
+        // Open a connection to the server
+        StreamObserver<ChatMessagingRequest> requestObserver = asyncStub.chatMessaging(new StreamObserver<ChatMessagingResponse>() {
 
-                @Override
-                public void onError(Throwable t) {
-                    System.out.println("Disconnected due to error: " + t.getMessage());
-                    chatTextArea.appendText("Disconnected due to error: " + t.getMessage());
-                }
+            // Handler for messages from the server
+            @Override
+            public void onNext(ChatMessagingResponse value) {
+                // Display the message from the server
+                Platform.runLater(() -> {
+                    chatTextArea.appendText(value.getServerReply() + "\n");
+                });
+            }
 
-                @Override
-                public void onCompleted() {
-                    System.out.println("Disconnected");
-                }
-            });
+            @Override
+            public void onError(Throwable t) {
+                System.out.println("Disconnected due to error: " + t.getMessage());
+                chatTextArea.appendText("Disconnected due to error: " + t.getMessage());
+            }
 
-            // Send button handler, create a message and send.
-            sendButton.setOnAction(e -> {
+            @Override
+            public void onCompleted() {
+                System.out.println("Disconnected");
+            }
+        });
 
-                if (messageTextField.getText().equals("")) {
-                    JOptionPane.showMessageDialog(null, "Cannot send empty messages");
-                } else {
+        // Send button handler, create a message and send.
+        sendButton.setOnAction(e -> {
 
-                    // Create a message
-                    ChatMessagingRequest chatMessage = ChatMessagingRequest.newBuilder()
-                            .setMessage(messageTextField.getText())
-                            .build();
+            if (messageTextField.getText().equals("")) {
+                JOptionPane.showMessageDialog(null, "Cannot send empty messages");
+            } else {
 
-                    // Send the message
-                    requestObserver.onNext(chatMessage);
+                // Create a message
+                ChatMessagingRequest chatMessage = ChatMessagingRequest.newBuilder()
+                        .setMessage(messageTextField.getText())
+                        .build();
 
-                    //show the message send on the list
-                    chatTextArea.appendText("User: " + messageTextField.getText() + "\n");
+                // Send the message
+                requestObserver.onNext(chatMessage);
 
-                    // clear the text field
-                    messageTextField.clear();
-                }
-            });
+                //show the message send on the list
+                chatTextArea.appendText("User: " + messageTextField.getText() + "\n");
+
+                // clear the text field
+                messageTextField.clear();
+            }
+        });
 
     }
 
