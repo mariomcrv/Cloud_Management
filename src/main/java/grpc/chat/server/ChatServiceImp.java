@@ -33,7 +33,8 @@ public class ChatServiceImp extends ChatServiceGrpc.ChatServiceImplBase {
 
             @Override
             public void onError(Throwable t) {
-                // nothing yet
+                System.out.println("Unexpected error");
+                System.out.println(t.getMessage());
             }
 
             @Override

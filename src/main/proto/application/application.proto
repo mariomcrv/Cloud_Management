@@ -21,7 +21,6 @@ message ApplicationDetailsResponse {
 }
 
 message ApplicationDetailsRequest{
-
 }
 
 message UserStatusRequest {
@@ -38,7 +37,6 @@ message UserStatusResponse {
     Suspended = 2;
     Validating = 3;
   }
-
 }
 
 service ApplicationService {
