@@ -16,6 +16,10 @@ import javafx.stage.Stage;
 
 import javax.jmdns.ServiceInfo;
 import javax.swing.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class ChatController {
 
@@ -79,6 +83,7 @@ public class ChatController {
                 // Display the message from the server
                 Platform.runLater(() -> {
                     chatTextArea.appendText(value.getServerReply() + "\n");
+                    chatTextArea.setScrollTop(chatTextArea.getScrollTop());
                 });
             }
 
@@ -110,10 +115,20 @@ public class ChatController {
                 requestObserver.onNext(chatMessage);
 
                 //show the message send on the list
-                chatTextArea.appendText("User: " + messageTextField.getText() + "\n");
+
+                // get the current time
+                // get the current date and time
+                Date date = Calendar.getInstance().getTime();
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                String currDate = dateFormat.format(date);
+
+                chatTextArea.appendText("> User (" + currDate + "): \n" + messageTextField.getText() + "\n");
 
                 // clear the text field
                 messageTextField.clear();
+
+                // disable the button as the text field is empty
+                sendButton.setDisable(true);
             }
         });
 
