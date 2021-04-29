@@ -33,7 +33,6 @@ public class LoginController {
     private static ServiceInfo applicationServiceInfo;
     private static ServiceInfo chatServiceInfo;
 
-
     // declare the gRPC stub
     private static LoginServiceGrpc.LoginServiceBlockingStub loginClient;
 
