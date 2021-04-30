@@ -60,13 +60,15 @@ public class HomeController {
             // clear the textarea
             appsTextArea.clear();
 
-            // the new thread allows us to see the new information as it arrives instead of waiting
-            new Thread(() -> {
-                // at this point, the channel and the stubs are already created
-                //prepare the request
-                ApplicationDetailsRequest request = ApplicationDetailsRequest.newBuilder()
-                        .build();
 
+            // at this point, the channel and the stubs are already created
+            //prepare the request
+            ApplicationDetailsRequest request = ApplicationDetailsRequest.newBuilder()
+                    .build();
+
+            // the new thread allows us to see the new information as it arrives instead of waiting
+            Platform.runLater(() -> {
+            new Thread(() -> {
                 // stream the responses in a blocking manner
                 try {
                     appsTextArea.setText("Loading Applications...");
@@ -93,13 +95,10 @@ public class HomeController {
                             });
 
                     appsTextArea.appendText("----------------- End ------------------");
+                    // finish process
+                    System.out.println("Finished Checking Applications");
 
-                    Platform.runLater(() -> {
-                        //enable the button again
-                        disableButtons(false);
-                        // finish process
-                        System.out.println("Finished Checking Applications");
-                    });
+
 
                     // this will catch when the thread is interrupted
                 } catch (InterruptedException e) {
@@ -112,6 +111,12 @@ public class HomeController {
                 }
 
             }).start();
+
+
+                //enable the button again
+                disableButtons(false);
+
+            });
 
 
             // jmDNS error handling. Unable to discover the service
@@ -234,8 +239,8 @@ public class HomeController {
         applicationServiceInfo = LoginController.getApplicationServiceInfo();
 
         // jmDNS services
-            String host = applicationServiceInfo.getHostAddresses()[0];
-            int port = applicationServiceInfo.getPort();
+        String host = applicationServiceInfo.getHostAddresses()[0];
+        int port = applicationServiceInfo.getPort();
 
         // create the channel
         ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
